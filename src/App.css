@@ -1,0 +1,33 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+  min-height: 100vh;
+}
+
+/* Чтобы при перетаскивании не было видно всю картинку */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+}
+
+.puzzle__container {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  grid-template-columns: repeat(2, 200px);
+  /* gap: 1px; */
+}
+
+.puzzle__box {
+  max-width: 200px;
+  max-height: 200px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.peppa-img {
+  width: 102.05%;
+  object-fit: none;
+}

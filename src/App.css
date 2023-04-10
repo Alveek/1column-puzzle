@@ -1,7 +1,10 @@
 .App {
   font-family: sans-serif;
   text-align: center;
-  min-height: 100vh;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  min-height: calc(100vh - 100px);
 }
 
 /* Чтобы при перетаскивании не было видно всю картинку */
@@ -14,20 +17,27 @@ img {
 
 .puzzle__container {
   display: grid;
-  justify-content: center;
-  align-content: center;
-  grid-template-columns: repeat(2, 200px);
-  /* gap: 1px; */
+  grid-template-columns: 1fr;
+  margin: 0 auto;
+  gap: 1px;
+  padding: 0;
+  list-style: none;
 }
 
 .puzzle__box {
-  max-width: 200px;
-  max-height: 200px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  max-height: 80px;
+  /* border: 1px solid rgba(255, 255, 255, 0.3); */
   overflow: hidden;
+  list-style: none;
+  padding-left: 0;
 }
 
 .peppa-img {
-  width: 102.05%;
+  width: 100%;
   object-fit: none;
+}
+
+button {
+  margin-top: 50px;
+  padding: 20px;
 }

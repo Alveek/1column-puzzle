@@ -1,33 +1,73 @@
-import peppa from './assets/peppa-400.jpg';
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { posArray4x4, posArray2x2, posArray1x4 } from './utils';
+import ConfettiExplosion from 'react-confetti-explosion';
 
-// размеры пока что задаются в App.css
 import './App.css';
 
 function App() {
-  const elements = useRef('');
+  let width =
+    window.innerWidth ||
+    document.documentElement.clientWidth ||
+    document.body.clientWidth;
 
-  // новый рандомный массив
-  const posArrayIds = posArray1x4.filter((item) => item.id);
-  const shuffledArray = posArray1x4.sort((a, b) => 0.5 - Math.random());
+  const height = 420;
 
-  console.log(posArrayIds);
+  const posArray1x4 = [
+    { id: 1, x: '0px', y: '0px' },
+    { id: 2, x: '0px', y: '-70px' },
+    { id: 3, x: '0px', y: '-140px' },
+    { id: 4, x: '0px', y: '-210px' },
+    { id: 5, x: '0px', y: '-280px' },
+    { id: 6, x: '0px', y: '-350px' },
+  ];
 
-  // эта фунция создает новый массив из id элементов в доме,чтобы потом каждый раз
-  // при перетаскивании элемента сравнивать с оригинальным массивом
-  // или даже проще с arr.sort()
-  // const getElementsIdsArray = (nodelist) => {
-  //   const nodeArr = Array.from(nodelist.current.querySelectorAll('.puzzle__box'));
-  //   return nodeArr.map((item) => item.id);
-  // };
+  const [puzzle, updatePuzzle] = useState([]);
+  const [image, setImage] = useState(null);
 
-  // useEffect(() => {
-  //   console.log(getElementsIdsArray(elements));
-  // }, [elements]);
+  const mediumProps = {
+    force: 0.6,
+    duration: 2500,
+    particleCount: 200,
+    width: width,
+  };
 
-  const [puzzle, updatePuzzle] = useState(shuffledArray);
+  const isSolved = (a, b) => {
+    return JSON.stringify(a) === JSON.stringify(b);
+  };
+
+  const shuffleArray = (arr) => {
+    let shuffled = arr.slice().sort((a, b) => 0.5 - Math.random());
+
+    while (isSolved(arr, shuffled)) {
+      shuffled = arr.slice().sort((a, b) => 0.5 - Math.random());
+    }
+    return shuffled;
+  };
+
+  const getNewImage = () => {
+    if (width > 600) width = 600;
+
+    fetch(`https://picsum.photos/${width}/${height}`).then((result) => {
+      updatePuzzle(shuffleArray(posArray1x4));
+      setImage(null);
+
+      setTimeout(() => {
+        setImage(result.url);
+      }, 200);
+    });
+  };
+
+  useEffect(() => {
+    getNewImage();
+  }, []);
+
+  const onDragStart = (vib) => {
+    if (vib) {
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+      }
+    }
+  };
 
   function handleOnDragEnd(result) {
     if (!result.destination) return;
@@ -39,72 +79,66 @@ function App() {
     updatePuzzle(items);
   }
 
-  // return (
-  //   <div className="App">
-  //     <div
-  //       className="puzzle__container"
-  //       ref={elements}>
-  //       {shuffledArray.map((el) => {
-  //         return (
-  //           <div
-  //             id={el.id}
-  //             className="puzzle__box"
-  //             draggable="true"
-  //             key={el.id}>
-  //             <img
-  //               src={peppa}
-  //               style={{ objectPosition: `${el.x} ${el.y}` }}
-  //               alt="oink oink"
-  //               className="puzzle-img"
-  //             />
-  //           </div>
-  //         );
-  //       })}
-  //     </div>
-  //   </div>
-  // );
-
   return (
     <div className='App'>
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        <Droppable droppableId='characters'>
-          {(provided) => (
-            <ul
-              className='puzzle__container'
-              {...provided.droppableProps}
-              ref={provided.innerRef}>
-              {puzzle.map(({ id, x, y }, index) => {
-                return (
-                  <Draggable
-                    key={id}
-                    draggableId={String(id)}
-                    index={index}>
-                    {(provided) => (
-                      <li
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        id={id}
-                        className='puzzle__box'
-                        draggable='true'
-                        key={id}>
-                        <img
-                          src={peppa}
-                          style={{ objectPosition: `${x} ${y}` }}
-                          alt='oink oink'
-                          className='puzzle-img'
-                        />
-                      </li>
-                    )}
-                  </Draggable>
-                );
-              })}
-              {provided.placeholder}
-            </ul>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <button onClick={() => window.location.reload()}>Reload</button>
+      {isSolved(posArray1x4, puzzle) && (
+        <ConfettiExplosion
+          className='confetti'
+          {...mediumProps}
+        />
+      )}
+      {image && (
+        <div>
+          <p>{isSolved(posArray1x4, puzzle) ? 'Solved' : 'Good Luck'}</p>
+          <DragDropContext
+            onDragStart={() => onDragStart(false)}
+            onDragEnd={handleOnDragEnd}>
+            <Droppable droppableId='characters'>
+              {(provided) => (
+                <ul
+                  className='puzzle__container'
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}>
+                  {puzzle.map(({ id, x, y }, index) => {
+                    return (
+                      <Draggable
+                        key={id}
+                        draggableId={String(id)}
+                        index={index}>
+                        {(provided) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            id={id}
+                            className='puzzle__box'
+                            draggable='true'
+                            key={id}>
+                            <img
+                              src={image || placeholder400}
+                              style={{ objectPosition: `${x} ${y}` }}
+                              alt='oink oink'
+                              className='puzzle-img'
+                            />
+                          </li>
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                </ul>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <button
+            onClick={() => {
+              getNewImage();
+              setIsSolved(!isSolved);
+            }}>
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

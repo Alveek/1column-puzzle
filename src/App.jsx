@@ -89,54 +89,59 @@ function App() {
       )}
       {image && (
         <div>
-          <p>{isSolved(posArray1x4, puzzle) ? 'Solved' : 'Good Luck'}</p>
-          <DragDropContext
-            onDragStart={() => onDragStart(false)}
-            onDragEnd={handleOnDragEnd}>
-            <Droppable droppableId='characters'>
-              {(provided) => (
-                <ul
-                  className='puzzle__container'
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}>
-                  {puzzle.map(({ id, x, y }, index) => {
-                    return (
-                      <Draggable
-                        key={id}
-                        draggableId={String(id)}
-                        index={index}>
-                        {(provided) => (
-                          <li
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            id={id}
-                            className='puzzle__box'
-                            draggable='true'
-                            key={id}>
-                            <img
-                              src={image || placeholder400}
-                              style={{ objectPosition: `${x} ${y}` }}
-                              alt='oink oink'
-                              className='puzzle-img'
-                            />
-                          </li>
-                        )}
-                      </Draggable>
-                    );
-                  })}
-                  {provided.placeholder}
-                </ul>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <button
-            onClick={() => {
-              getNewImage();
-              setIsSolved(!isSolved);
-            }}>
-            Next
-          </button>
+          {isSolved(posArray1x4, puzzle) ? (
+            <>
+              <img src={image} alt='' />
+              <button
+                className='button'
+                onClick={() => {
+                  getNewImage();
+                }}>
+                Ещё!
+              </button>
+            </>
+          ) :
+            <DragDropContext
+              onDragStart={() => onDragStart(false)}
+              onDragEnd={handleOnDragEnd}>
+              <Droppable droppableId='characters'>
+                {(provided) => (
+                  <ul
+                    className='puzzle__container'
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}>
+                    {puzzle.map(({ id, x, y }, index) => {
+                      return (
+                        <Draggable
+                          key={id}
+                          draggableId={String(id)}
+                          index={index}>
+                          {(provided) => (
+                            <li
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              id={id}
+                              className='puzzle__box'
+                              draggable='true'
+                              key={id}>
+                              <img
+                                src={image || placeholder400}
+                                style={{ objectPosition: `${x} ${y}` }}
+                                alt='oink oink'
+                                className='puzzle-img'
+                              />
+                            </li>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </ul>
+                )}
+              </Droppable>
+            </DragDropContext>
+          }
         </div>
       )}
     </div>
